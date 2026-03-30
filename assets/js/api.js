@@ -9,6 +9,25 @@ function assertNoError(error, defaultMessage) {
   }
 }
 
+function formatAnswerTimestamp(isoString) {
+  const dt = new Date(isoString);
+  if (Number.isNaN(dt.getTime())) {
+    return isoString;
+  }
+
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, '0');
+  const dd = String(dt.getDate()).padStart(2, '0');
+  const hh = String(dt.getHours()).padStart(2, '0');
+  const mi = String(dt.getMinutes()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+}
+
+function buildAnswerHistoryBlock(submittedAtIso, answerText) {
+  return `(${formatAnswerTimestamp(submittedAtIso)})${answerText}`;
+}
+
 export async function generateUniqueJoinCode() {
   for (let i = 0; i < 30; i += 1) {
     const code = String(Math.floor(1000 + Math.random() * 9000));
@@ -176,8 +195,6 @@ export async function setActiveQuestion(discussionId, teacherToken, questionId) 
   return data;
 }
 
-
-
 export async function closeDiscussion(discussionId, teacherToken) {
   const { data, error } = await supabase
     .from(T.discussions)
@@ -217,18 +234,36 @@ export async function getQuestionById(questionId) {
   return data;
 }
 
-export async function submitAnswer(discussionId, questionId, participantId, content) {
+export async function submitAnswer(discussionId, questionId, participantId, latestAnswerText) {
   const discussion = await getDiscussionById(discussionId);
   if (!discussion || discussion.status !== 'open') {
     throw new Error('本討論已結束，無法再送出回答。');
   }
 
+  const submittedAt = new Date().toISOString();
+
+  const { data: existing, error: existingError } = await supabase
+    .from(T.answers)
+    .select('id, content, submitted_at')
+    .eq('question_id', questionId)
+    .eq('participant_id', participantId)
+    .maybeSingle();
+
+  if (existingError && existingError.code !== 'PGRST116') {
+    throw new Error(existingError.message || '讀取既有回答失敗');
+  }
+
+  const newBlock = buildAnswerHistoryBlock(submittedAt, latestAnswerText);
+  const mergedContent = existing?.content
+    ? `${existing.content}\n${newBlock}`
+    : newBlock;
+
   const payload = {
     discussion_id: discussionId,
     question_id: questionId,
     participant_id: participantId,
-    content,
-    submitted_at: new Date().toISOString()
+    content: mergedContent,
+    submitted_at: submittedAt
   };
 
   const { data, error } = await supabase
