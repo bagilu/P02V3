@@ -36,7 +36,7 @@ function renderQuestionList(questions, activeQuestionId) {
   }
 
   questionListEl.innerHTML = questions.map(q => {
-    const checked = Number(activeQuestionId) === Number(q.id) ? 'checked' : '';
+    const isActive = Number(activeQuestionId) === Number(q.id);
     const answerUrl = buildUrl('./teacher-answers.html', {
       discussion_id: q.discussion_id,
       question_id: q.id
@@ -46,15 +46,15 @@ function renderQuestionList(questions, activeQuestionId) {
       <div class="list-group-item question-item">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div class="d-flex align-items-start gap-3 flex-grow-1">
-            <div class="pt-1">
-              <input class="form-check-input active-question-radio" type="radio" name="activeQuestion" value="${q.id}" ${checked}>
-            </div>
             <div class="flex-grow-1">
-              <div class="fw-semibold mb-1">問題 ${q.sort_order}</div>
+              <div class="fw-semibold mb-1">問題 ${q.sort_order} ${isActive ? '<span class="badge text-bg-success ms-2">目前題目</span>' : ''}</div>
               <div class="question-main">${escapeHtml(q.question_text)}</div>
             </div>
           </div>
           <div>
+            <button type="button" class="btn btn-sm me-2 ${isActive ? 'btn-success' : 'btn-outline-success'} set-active-question-btn" data-question-id="${q.id}" ${isActive ? 'disabled' : ''}>
+              ${isActive ? '目前題目' : '設為目前題目'}
+            </button>
             <a href="${answerUrl}" class="btn btn-outline-primary btn-sm">查看回答</a>
           </div>
         </div>
@@ -62,13 +62,16 @@ function renderQuestionList(questions, activeQuestionId) {
     `;
   }).join('');
 
-  questionListEl.querySelectorAll('.active-question-radio').forEach(radio => {
-    radio.addEventListener('change', async (event) => {
+  questionListEl.querySelectorAll('.set-active-question-btn').forEach(button => {
+    button.addEventListener('click', async (event) => {
       try {
-        await setActiveQuestion(discussionId, teacherToken, Number(event.target.value));
+        event.currentTarget.disabled = true;
+        await setActiveQuestion(discussionId, teacherToken, Number(event.currentTarget.dataset.questionId));
         await refreshAll();
+        setMessage(questionMessageEl, '目前題目已更新，學生端將自動顯示。', 'success');
       } catch (error) {
         setMessage(questionMessageEl, error.message || '設定作用中問題失敗。', 'danger');
+        event.currentTarget.disabled = false;
       }
     });
   });

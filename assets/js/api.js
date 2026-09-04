@@ -38,6 +38,27 @@ export async function joinDiscussion(joinCode, nickname) {
   };
 }
 
+export async function resumeDiscussion(discussionId, participantId, participantToken) {
+  const row = firstRow(await rpc('P02_ResumeDiscussion', {
+    p_discussion_id: discussionId,
+    p_participant_id: participantId,
+    p_participant_token: participantToken
+  }, '繼續討論失敗'));
+  if (!row) throw new Error('原討論已結束或續接資料失效。');
+  return {
+    discussion: {
+      id: row.discussion_id,
+      join_code: row.join_code,
+      status: row.status
+    },
+    participant: {
+      id: row.participant_id,
+      nickname: row.nickname,
+      participant_token: row.participant_token
+    }
+  };
+}
+
 export async function getTeacherState(discussionId, teacherToken) {
   return firstRow(await rpc('P02_GetTeacherState', {
     p_discussion_id: discussionId,
