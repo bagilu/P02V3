@@ -47,11 +47,25 @@
 
         <div class="card shadow-sm">
           <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-              <h2 class="h5 mb-0">回答列表</h2>
-              <small id="nicknameStatusText" class="text-muted">目前預設隱藏暱稱</small>
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+              <div>
+                <h2 class="h5 mb-1">回答列表</h2>
+                <small id="answerCountText" class="text-muted">載入回答中...</small>
+              </div>
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <small id="nicknameStatusText" class="text-muted">目前預設隱藏暱稱</small>
+                <div class="btn-group btn-group-sm" role="group" aria-label="回答檢視方式">
+                  <button id="btnStickyView" type="button" class="btn btn-primary" aria-pressed="true">便利貼</button>
+                  <button id="btnTableView" type="button" class="btn btn-outline-secondary" aria-pressed="false">表格</button>
+                </div>
+              </div>
             </div>
-            <div class="table-responsive">
+
+            <div id="stickyView" aria-live="polite">
+              <div id="stickyNotesGrid" class="sticky-notes-grid"></div>
+            </div>
+
+            <div id="tableView" class="table-responsive" hidden>
               <table class="table table-bordered table-striped align-middle">
                 <thead class="table-light">
                   <tr>

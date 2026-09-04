@@ -13,7 +13,7 @@
 
 - Direct table privileges are revoked from `anon` and `authenticated`.
 - RLS is enabled with restrictive deny-direct policies on only the four P02 tables.
-- Eleven P02-only `SECURITY DEFINER` RPCs validate teacher or participant tokens.
+- Twelve P02-only `SECURITY DEFINER` RPCs validate teacher or participant tokens.
 - Every function fixes `search_path` and fully qualifies P02 objects.
 - A unique participant token is added without deleting existing rows.
 - Sensitive tokens are kept in tab-scoped `sessionStorage` and omitted from URLs.

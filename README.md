@@ -1,4 +1,4 @@
-# P02 BrainStormingSystem V4 Secure
+# P02 BrainStormingSystem V4.2 Table／Sticky Note View
 
 GitHub Pages + Supabase 的課堂腦力激盪系統。本版以 v3 功能為基準，完成 P-SDS 結構與資料庫權限重整。
 
@@ -18,6 +18,10 @@ GitHub Pages + Supabase 的課堂腦力激盪系統。本版以 v3 功能為基�
 - RLS 與 restrictive policy 只套用到 P02 自己的資料表。
 - 權杖不再出現在網址，並只保留於目前分頁的 `sessionStorage`。
 - Supabase Auth 不持久化，並使用 P02 專屬 `storageKey`。
+- 第一題建立後會自動成為目前題目；教師也可用明確按鈕切換目前題目。
+- 學生返回加入頁時，可用原分頁內的參與權杖安全續接同一討論。
+- 教師回答頁可在表格與便利貼兩種檢視間切換，並記住上次選擇。
+- 便利貼顏色目前只作視覺區分，不代表回答分類。
 
 ## 升級順序
 
@@ -50,6 +54,7 @@ GitHub Pages + Supabase 的課堂腦力激盪系統。本版以 v3 功能為基�
 - `Database/05_EnableRLS.sql`
 - `Database/06_CreatePolicies.sql`
 - `Database/07_GrantPermissions.sql`
+- `Database/10_P02_V4.1_ActivationAndResume.sql`（僅供已安裝 V4.0 者升級）
 - `Database/90_P02_Permissions.sql`
 - `Database/99_P02_HealthCheck.sql`
 - `docs/SECURITY_AUDIT.md`

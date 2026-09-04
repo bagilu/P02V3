@@ -25,12 +25,13 @@ WITH checks AS (
          NOT EXISTS (SELECT 1 FROM information_schema.role_table_grants
                      WHERE grantee = 'PUBLIC' AND table_schema = 'public'
                        AND table_name IN ('TblP02Discussions','TblP02Questions','TblP02Participants','TblP02Answers'))
-  UNION ALL SELECT 'all 11 P02 RPC functions exist',
-         (SELECT count(DISTINCT p.proname) = 11
+  UNION ALL SELECT 'all 12 P02 RPC functions exist',
+         (SELECT count(DISTINCT p.proname) = 12
           FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
           WHERE n.nspname = 'public'
             AND p.proname IN ('P02_CreateDiscussion','P02_JoinDiscussion','P02_GetTeacherState',
               'P02_GetQuestions','P02_AddQuestion','P02_SetActiveQuestion','P02_CloseDiscussion',
-              'P02_GetStudentState','P02_SubmitAnswer','P02_LeaveDiscussion','P02_GetQuestionAnswers'))
+              'P02_GetStudentState','P02_SubmitAnswer','P02_LeaveDiscussion','P02_GetQuestionAnswers',
+              'P02_ResumeDiscussion'))
 )
 SELECT check_name, passed FROM checks ORDER BY check_name;

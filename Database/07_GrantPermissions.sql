@@ -6,6 +6,7 @@ REVOKE ALL ON TABLE public."TblP02Answers" FROM PUBLIC, anon, authenticated;
 
 REVOKE EXECUTE ON FUNCTION public."P02_CreateDiscussion"() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_JoinDiscussion"(text, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_ResumeDiscussion"(bigint, bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_GetTeacherState"(bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_GetQuestions"(bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_AddQuestion"(bigint, text, text) FROM PUBLIC;
@@ -18,6 +19,7 @@ REVOKE EXECUTE ON FUNCTION public."P02_GetQuestionAnswers"(bigint, bigint, text)
 
 GRANT EXECUTE ON FUNCTION public."P02_CreateDiscussion"() TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_JoinDiscussion"(text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_ResumeDiscussion"(bigint, bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_GetTeacherState"(bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_GetQuestions"(bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_AddQuestion"(bigint, text, text) TO anon, authenticated;

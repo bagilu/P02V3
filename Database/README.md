@@ -14,6 +14,8 @@ Run each file separately in Supabase SQL Editor and wait for success before cont
 
 `90_P02_Permissions.sql` is an emergency repair script. It is not an extra installation step.
 
-All scripts are limited to the four `TblP02...` tables and eleven `P02_...` functions. They contain no schema-wide grants, revokes, default privileges, or operations on another P project.
+`10_P02_V4.1_ActivationAndResume.sql` is only for a database that already completed the V4.0 installation. A fresh installation does not need it because `04_CreateFunctions.sql` already contains the V4.1 functions.
+
+All scripts are limited to the four `TblP02...` tables and twelve `P02_...` functions. They contain no schema-wide grants, revokes, default privileges, or operations on another P project.
 
 For an existing v3 database, the deployment preserves rows and adds `participant_token` and `closed_at`. Existing browser sessions do not have the new participant token, so students should rejoin after the upgrade. Deploy the database files before publishing the v4 frontend.
