@@ -1,9 +1,9 @@
-import { addQuestion, closeDiscussion, getActiveQuestion, getDiscussionById, getParticipantCount, getQuestions, setActiveQuestion } from './api.js';
+import { addQuestion, closeDiscussion, getQuestions, getTeacherState, setActiveQuestion } from './api.js';
 import { APP_CONFIG } from './config.js';
 import { qs, getQueryParam, readStorage, saveStorage, setMessage, clearMessage, buildUrl, goTo } from './utils.js';
 
 const discussionId = Number(getQueryParam('discussion_id') || readStorage(APP_CONFIG.STORAGE_KEYS.teacherDiscussionId));
-const teacherToken = getQueryParam('token') || readStorage(APP_CONFIG.STORAGE_KEYS.teacherToken);
+const teacherToken = readStorage(APP_CONFIG.STORAGE_KEYS.teacherToken);
 
 const discussionCodeEl = qs('#discussionCode');
 const participantCountEl = qs('#participantCount');
@@ -20,15 +20,11 @@ if (!discussionId || !teacherToken) {
 }
 
 async function loadHeader() {
-  const [discussion, participantCount, activeQuestion] = await Promise.all([
-    getDiscussionById(discussionId),
-    getParticipantCount(discussionId),
-    getActiveQuestion(discussionId)
-  ]);
+  const discussion = await getTeacherState(discussionId, teacherToken);
 
   discussionCodeEl.textContent = discussion.join_code || '----';
-  participantCountEl.textContent = participantCount;
-  activeQuestionLabelEl.textContent = activeQuestion ? activeQuestion.question_text : '尚未設定';
+  participantCountEl.textContent = discussion.participant_count || 0;
+  activeQuestionLabelEl.textContent = discussion.active_question_text || '尚未設定';
 
   saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, discussion.join_code || '');
 }
@@ -43,8 +39,7 @@ function renderQuestionList(questions, activeQuestionId) {
     const checked = Number(activeQuestionId) === Number(q.id) ? 'checked' : '';
     const answerUrl = buildUrl('./teacher-answers.html', {
       discussion_id: q.discussion_id,
-      question_id: q.id,
-      token: teacherToken
+      question_id: q.id
     });
 
     return `
@@ -88,8 +83,8 @@ function escapeHtml(text) {
 async function refreshAll() {
   clearMessage(questionMessageEl);
   const [discussion, questions] = await Promise.all([
-    getDiscussionById(discussionId),
-    getQuestions(discussionId)
+    getTeacherState(discussionId, teacherToken),
+    getQuestions(discussionId, teacherToken)
   ]);
   await loadHeader();
   renderQuestionList(questions, discussion.active_question_id);

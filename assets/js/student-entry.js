@@ -30,14 +30,11 @@ btnJoinDiscussion?.addEventListener('click', async () => {
 
     saveStorage(APP_CONFIG.STORAGE_KEYS.studentDiscussionId, result.discussion.id);
     saveStorage(APP_CONFIG.STORAGE_KEYS.participantId, result.participant.id);
+    saveStorage(APP_CONFIG.STORAGE_KEYS.participantToken, result.participant.participant_token);
     saveStorage(APP_CONFIG.STORAGE_KEYS.nickname, result.participant.nickname);
     saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, result.discussion.join_code);
 
-    const target = buildUrl('./student-input.html', {
-      discussion_id: result.discussion.id,
-      participant_id: result.participant.id
-    });
-    goTo(target);
+    goTo('./student-input.html');
   } catch (error) {
     setMessage(joinMessage, error.message || '加入討論失敗。', 'danger');
   } finally {

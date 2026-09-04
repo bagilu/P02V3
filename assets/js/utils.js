@@ -71,13 +71,13 @@ export function buildUrl(path, params = {}) {
 }
 
 export function saveStorage(key, value) {
-  localStorage.setItem(key, String(value));
+  sessionStorage.setItem(key, String(value));
 }
 
 export function readStorage(key) {
-  return localStorage.getItem(key);
+  return sessionStorage.getItem(key);
 }
 
 export function removeStorage(key) {
-  localStorage.removeItem(key);
+  sessionStorage.removeItem(key);
 }

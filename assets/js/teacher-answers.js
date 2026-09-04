@@ -1,10 +1,10 @@
-import { getDiscussionById, getParticipantCount, getQuestionAnswersView } from './api.js';
+import { getQuestionAnswersView, getTeacherState } from './api.js';
 import { APP_CONFIG } from './config.js';
 import { qs, getQueryParam, readStorage, saveStorage, setMessage, formatDateTime, buildUrl, goTo } from './utils.js';
 
 const discussionId = Number(getQueryParam('discussion_id'));
 const questionId = Number(getQueryParam('question_id'));
-const teacherToken = getQueryParam('token') || readStorage(APP_CONFIG.STORAGE_KEYS.teacherToken);
+const teacherToken = readStorage(APP_CONFIG.STORAGE_KEYS.teacherToken);
 
 const discussionCodeEl = qs('#discussionCode');
 const participantCountEl = qs('#participantCount');
@@ -17,15 +17,14 @@ const nicknameStatusTextEl = qs('#nicknameStatusText');
 
 let showNickname = false;
 
-if (!discussionId || !questionId) {
+if (!discussionId || !questionId || !teacherToken) {
   alert('缺少必要參數，將回教師入口。');
   goTo('./teacher-entry.html');
 }
 
 btnBackToQuestions?.addEventListener('click', () => {
   const url = buildUrl('./teacher-questions.html', {
-    discussion_id: discussionId,
-    token: teacherToken
+    discussion_id: discussionId
   });
   goTo(url);
 });
@@ -73,14 +72,13 @@ function renderRows(rows) {
 }
 
 async function refreshAll() {
-  const [discussion, participantCount, view] = await Promise.all([
-    getDiscussionById(discussionId),
-    getParticipantCount(discussionId),
-    getQuestionAnswersView(discussionId, questionId)
+  const [discussion, view] = await Promise.all([
+    getTeacherState(discussionId, teacherToken),
+    getQuestionAnswersView(discussionId, questionId, teacherToken)
   ]);
 
   discussionCodeEl.textContent = discussion.join_code || '----';
-  participantCountEl.textContent = participantCount;
+  participantCountEl.textContent = discussion.participant_count || 0;
   questionTextEl.textContent = view.question?.question_text || '查無問題';
   renderRows(view.rows || []);
 }

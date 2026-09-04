@@ -17,8 +17,7 @@ btnCreateDiscussion?.addEventListener('click', async () => {
     saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, discussion.join_code);
 
     const target = buildUrl('./teacher-questions.html', {
-      discussion_id: discussion.id,
-      token: discussion.teacher_token
+      discussion_id: discussion.id
     });
     goTo(target);
   } catch (error) {
