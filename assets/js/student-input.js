@@ -1,4 +1,4 @@
-import { getStudentState, joinDiscussion, resumeDiscussion, submitAnswer } from './api.js';
+import { getParticipantState, joinDiscussion, resumeDiscussion, submitAnswer } from './api.js';
 import { APP_CONFIG } from './config.js';
 import { qs, getQueryParam, readStorage, saveStorage, removeStorage, setMessage, clearMessage, buildUrl, goTo, sanitizeJoinCode } from './utils.js';
 import { renderSharePanel } from './share.js';
@@ -16,7 +16,7 @@ const answerContentEl = qs('#answerContent'), btnSubmitAnswer = qs('#btnSubmitAn
 const shareJoinCodeEl = qs('#shareJoinCode'), shareJoinUrlEl = qs('#shareJoinUrl'), joinQrCodeEl = qs('#joinQrCode'), btnCopyJoinUrl = qs('#btnCopyJoinUrl');
 let currentQuestionId = null;
 
-function clearStudentSession() {
+function clearParticipantSession() {
   [APP_CONFIG.STORAGE_KEYS.studentDiscussionId, APP_CONFIG.STORAGE_KEYS.participantId, APP_CONFIG.STORAGE_KEYS.participantToken, APP_CONFIG.STORAGE_KEYS.nickname].forEach(removeStorage);
 }
 
@@ -32,17 +32,17 @@ async function establishSession() {
     showJoin('----'); setMessage(joinMessageEl, '加入網址中的討論代碼不正確。 / Invalid join code in the URL.', 'danger'); return false;
   }
   if (requestedJoinCode && savedJoinCode && requestedJoinCode !== savedJoinCode) {
-    clearStudentSession(); discussionId = 0; participantId = 0; participantToken = null;
+    clearParticipantSession(); discussionId = 0; participantId = 0; participantToken = null;
   }
   if (discussionId && participantId && participantToken && (!requestedJoinCode || requestedJoinCode === savedJoinCode)) {
     try {
       const resumed = await resumeDiscussion(discussionId, participantId, participantToken);
       saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, resumed.discussion.join_code);
       showMain(); return true;
-    } catch (_) { clearStudentSession(); discussionId = 0; participantId = 0; participantToken = null; }
+    } catch (_) { clearParticipantSession(); discussionId = 0; participantId = 0; participantToken = null; }
   }
   if (requestedJoinCode) { showJoin(requestedJoinCode); return false; }
-  showJoin('----'); setMessage(joinMessageEl, '請使用教師提供的 QR Code 或加入網址。 / Please use the QR code or join URL provided by your teacher.', 'info');
+  showJoin('----'); setMessage(joinMessageEl, '請使用引導者提供的 QR Code 或加入網址。 / Please use the QR code or join URL provided by the facilitator.', 'info');
   return false;
 }
 
@@ -63,19 +63,19 @@ btnJoinDiscussion?.addEventListener('click', async () => {
 async function refreshView() {
   if (!discussionId || !participantId || !participantToken) return;
   clearMessage(submitMessageEl);
-  const discussion = await getStudentState(discussionId, participantId, participantToken);
+  const discussion = await getParticipantState(discussionId, participantId, participantToken);
   discussionCodeEl.textContent = discussion.join_code || '----'; participantCountEl.textContent = discussion.participant_count || 0;
   saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, discussion.join_code || '');
   renderSharePanel({ joinCode: discussion.join_code, codeEl: shareJoinCodeEl, urlEl: shareJoinUrlEl, qrEl: joinQrCodeEl, copyButton: btnCopyJoinUrl });
-  if (discussion.status !== 'open') { currentQuestionId = null; activeQuestionTextEl.textContent = '本討論已結束。 / This discussion has ended.'; btnSubmitAnswer.disabled = true; setMessage(submitMessageEl, '教師已結束本次討論。 / The teacher has ended this discussion.', 'warning'); return; }
-  if (!discussion.active_question_id) { currentQuestionId = null; activeQuestionTextEl.textContent = '教師尚未設定問題，請稍候。 / Waiting for the teacher to set a question.'; btnSubmitAnswer.disabled = true; return; }
+  if (discussion.status !== 'open') { currentQuestionId = null; activeQuestionTextEl.textContent = '本討論已結束。 / This discussion has ended.'; btnSubmitAnswer.disabled = true; setMessage(submitMessageEl, '引導者已結束本次討論。 / The facilitator has ended this discussion.', 'warning'); return; }
+  if (!discussion.active_question_id) { currentQuestionId = null; activeQuestionTextEl.textContent = '引導者尚未設定問題，請稍候。 / Waiting for the facilitator to set a question.'; btnSubmitAnswer.disabled = true; return; }
   currentQuestionId = discussion.active_question_id; activeQuestionTextEl.textContent = discussion.active_question_text; btnSubmitAnswer.disabled = false;
 }
 
 btnSubmitAnswer?.addEventListener('click', async () => {
   clearMessage(submitMessageEl); btnSubmitAnswer.disabled = true;
   try {
-    const content = (answerContentEl.value || '').trim(); if (!currentQuestionId) throw new Error('目前尚未有作用中的問題。 / No active question yet.'); if (!content) throw new Error('請先輸入回答內容。 / Please enter a response.');
+    const content = (answerContentEl.value || '').trim(); if (!currentQuestionId) throw new Error('目前尚未有作用中的問題。 / No active question yet.'); if (!content) throw new Error('請先輸入想法內容。 / Please enter a response.');
     const saved = await submitAnswer(discussionId, currentQuestionId, participantId, participantToken, content); answerContentEl.value = '';
     goTo(buildUrl('./student-waiting.html', { submitted_at: saved.submitted_at, join: readStorage(APP_CONFIG.STORAGE_KEYS.joinCode) || requestedJoinCode }));
   } catch (error) { setMessage(submitMessageEl, error.message || '送出失敗。 / Submit failed.', 'danger'); btnSubmitAnswer.disabled = false; }

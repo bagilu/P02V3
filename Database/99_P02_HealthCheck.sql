@@ -35,13 +35,17 @@ WITH checks AS (
                      WHERE grantee = 'PUBLIC' AND table_schema = 'public'
                        AND table_name IN ('TblP02Discussions','TblP02Questions','TblP02Participants','TblP02Answers',
                          'TblP02AffinityBoards','TblP02AffinityCategories','TblP02AffinityPlacements'))
-  UNION ALL SELECT 'all 17 P02 RPC functions exist',
-         (SELECT count(DISTINCT p.proname) = 17
+  UNION ALL SELECT 'TblP02Participants.is_facilitator exists',
+         EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='TblP02Participants' AND column_name='is_facilitator')
+  UNION ALL SELECT 'facilitator participant unique index exists',
+         to_regclass('public."UQ_P02_FacilitatorParticipant"') IS NOT NULL
+  UNION ALL SELECT 'all 18 P02 RPC functions exist',
+         (SELECT count(DISTINCT p.proname) = 18
           FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
           WHERE n.nspname = 'public'
             AND p.proname IN ('P02_CreateDiscussion','P02_JoinDiscussion','P02_GetTeacherState',
               'P02_GetQuestions','P02_AddQuestion','P02_SetActiveQuestion','P02_CloseDiscussion',
-              'P02_GetStudentState','P02_SubmitAnswer','P02_LeaveDiscussion','P02_GetQuestionAnswers',
+              'P02_GetStudentState','P02_SubmitAnswer','P02_SubmitFacilitatorIdea','P02_LeaveDiscussion','P02_GetQuestionAnswers',
               'P02_ResumeDiscussion','P02_GetAffinityBoard','P02_CreateAffinityCategory',
               'P02_RenameAffinityCategory','P02_DeleteAffinityCategory','P02_MoveAffinityAnswer'))
 )

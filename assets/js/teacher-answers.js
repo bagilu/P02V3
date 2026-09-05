@@ -4,6 +4,7 @@ import {
   getAffinityBoard,
   getQuestionAnswersView,
   getTeacherState,
+  getQuestions,
   moveAffinityAnswer,
   renameAffinityCategory
 } from './api.js';
@@ -42,8 +43,8 @@ let draggedAnswerId = null;
 const ANSWER_VIEW_STORAGE_KEY = 'p02_teacher_answer_view';
 
 if (!discussionId || !questionId || !teacherToken) {
-  alert('缺少必要參數，將回教師入口。');
-  goTo('./teacher-entry.html');
+  alert('缺少必要參數，將回首頁。');
+  goTo('./index.html');
 }
 
 btnBackToQuestions?.addEventListener('click', () => {
@@ -132,7 +133,7 @@ function renderNickname(value) {
 
 function renderTableRows(rows) {
   if (!rows.length) {
-    answersTableBodyEl.innerHTML = '<tr><td colspan="3" class="text-center text-muted">目前尚無參與者。</td></tr>';
+    answersTableBodyEl.innerHTML = '<tr><td colspan="3" class="text-center text-muted">目前尚無想法。 / No ideas yet.</td></tr>';
     return;
   }
 
@@ -154,7 +155,7 @@ function stickyColorClass(participantId) {
 function renderStickyNotes(rows) {
   const answeredRows = rows.filter(row => row.submitted_at && row.content);
   if (!answeredRows.length) {
-    stickyNotesGridEl.innerHTML = '<div class="sticky-empty-state">目前尚無學生送出回答。</div>';
+    stickyNotesGridEl.innerHTML = '<div class="sticky-empty-state">目前尚無參與者送出想法。 / No participant ideas yet.</div>';
     return;
   }
 
@@ -171,7 +172,8 @@ function renderStickyNotes(rows) {
 
 function renderAnswers(rows) {
   const answeredCount = rows.filter(row => row.submitted_at && row.content).length;
-  answerCountTextEl.textContent = `已回答 ${answeredCount}／${rows.length}`;
+  const participantCount = rows.filter(row => row.nickname !== '引導者 / Facilitator').length;
+  answerCountTextEl.textContent = `想法 ${answeredCount} · 參與者 ${participantCount} / Ideas ${answeredCount} · Participants ${participantCount}`;
   renderTableRows(rows);
   renderStickyNotes(rows);
 }
@@ -355,15 +357,18 @@ async function deleteCategory(categoryId) {
 }
 
 async function refreshAll() {
-  const [discussion, view] = await Promise.all([
+  const [discussion, view, questions] = await Promise.all([
     getTeacherState(discussionId, teacherToken),
-    getQuestionAnswersView(discussionId, questionId, teacherToken)
+    getQuestionAnswersView(discussionId, questionId, teacherToken),
+    getQuestions(discussionId, teacherToken)
   ]);
 
   discussionCodeEl.textContent = discussion.join_code || '----';
   participantCountEl.textContent = discussion.participant_count || 0;
-  questionTextEl.textContent = view.question?.question_text || '查無問題';
-  renderAnswers(view.rows || []);
+  const q = questions.find(item => Number(item.id) === Number(questionId));
+  questionTextEl.textContent = `Q${q?.sort_order || ''} ${view.question?.question_text || '查無問題'}`;
+  const visibleRows = (view.rows || []).filter(row => !(row.nickname === '引導者 / Facilitator' && !row.submitted_at && !row.content));
+  renderAnswers(visibleRows);
 }
 
 showNickname = readStorage(APP_CONFIG.STORAGE_KEYS.showNickname) === '1';

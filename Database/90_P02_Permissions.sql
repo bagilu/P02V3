@@ -25,6 +25,7 @@ REVOKE EXECUTE ON FUNCTION public."P02_SetActiveQuestion"(bigint, text, bigint) 
 REVOKE EXECUTE ON FUNCTION public."P02_CloseDiscussion"(bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_GetStudentState"(bigint, bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_SubmitAnswer"(bigint, bigint, bigint, text, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_SubmitFacilitatorIdea"(bigint, bigint, text, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_LeaveDiscussion"(bigint, bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_GetQuestionAnswers"(bigint, bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_GetAffinityBoard"(bigint, bigint, text) FROM PUBLIC;
@@ -43,6 +44,7 @@ GRANT EXECUTE ON FUNCTION public."P02_SetActiveQuestion"(bigint, text, bigint) T
 GRANT EXECUTE ON FUNCTION public."P02_CloseDiscussion"(bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_GetStudentState"(bigint, bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_SubmitAnswer"(bigint, bigint, bigint, text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_SubmitFacilitatorIdea"(bigint, bigint, text, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_LeaveDiscussion"(bigint, bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_GetQuestionAnswers"(bigint, bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_GetAffinityBoard"(bigint, bigint, text) TO anon, authenticated;

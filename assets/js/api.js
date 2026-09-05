@@ -63,7 +63,7 @@ export async function getTeacherState(discussionId, teacherToken) {
   return firstRow(await rpc('P02_GetTeacherState', {
     p_discussion_id: discussionId,
     p_teacher_token: teacherToken
-  }, '讀取教師端資料失敗'));
+  }, '讀取引導者端資料失敗 / Failed to load facilitator state'));
 }
 
 export async function getQuestions(discussionId, teacherToken) {
@@ -101,7 +101,7 @@ export async function getStudentState(discussionId, participantId, participantTo
     p_discussion_id: discussionId,
     p_participant_id: participantId,
     p_participant_token: participantToken
-  }, '讀取學生端資料失敗'));
+  }, '讀取參與者端資料失敗 / Failed to load participant state'));
 }
 
 export async function submitAnswer(discussionId, questionId, participantId, participantToken, content) {
@@ -112,6 +112,16 @@ export async function submitAnswer(discussionId, questionId, participantId, part
     p_participant_token: participantToken,
     p_content: content
   }, '送出回答失敗'));
+}
+
+
+export async function submitFacilitatorIdea(discussionId, questionId, teacherToken, content) {
+  return firstRow(await rpc('P02_SubmitFacilitatorIdea', {
+    p_discussion_id: discussionId,
+    p_question_id: questionId,
+    p_teacher_token: teacherToken,
+    p_content: content
+  }, '送出引導者想法失敗 / Failed to submit facilitator idea'));
 }
 
 export async function leaveDiscussion(discussionId, participantId, participantToken) {

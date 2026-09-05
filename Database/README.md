@@ -25,3 +25,7 @@ For an existing v3 database, the full deployment preserves rows and adds `partic
 
 ## V5.1 Direct Join & Bilingual UI
 V5.1 requires no database migration. The existing V5.0 `join_code`, `P02_CreateDiscussion`, `P02_JoinDiscussion`, and `UQ_P02_OpenJoinCode` already provide the required four-digit direct-join mechanism.
+
+
+## V5.2 upgrade
+For an existing V5.1.1 database, run `12_P02_V5.2_GeneralDiscussionUX.sql`, then `99_P02_HealthCheck.sql`.

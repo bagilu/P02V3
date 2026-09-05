@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS public."TblP02Participants" (
   discussion_id bigint NOT NULL REFERENCES public."TblP02Discussions"(id) ON DELETE CASCADE,
   nickname varchar(50) NOT NULL,
   participant_token uuid NOT NULL DEFAULT gen_random_uuid(),
+  is_facilitator boolean NOT NULL DEFAULT false,
   joined_at timestamptz NOT NULL DEFAULT now(),
   left_at timestamptz
 );
@@ -42,7 +43,8 @@ ALTER TABLE public."TblP02Discussions"
   ADD COLUMN IF NOT EXISTS closed_at timestamptz;
 
 ALTER TABLE public."TblP02Participants"
-  ADD COLUMN IF NOT EXISTS participant_token uuid DEFAULT gen_random_uuid();
+  ADD COLUMN IF NOT EXISTS participant_token uuid DEFAULT gen_random_uuid(),
+  ADD COLUMN IF NOT EXISTS is_facilitator boolean NOT NULL DEFAULT false;
 
 UPDATE public."TblP02Participants"
 SET participant_token = gen_random_uuid()

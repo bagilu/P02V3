@@ -12,6 +12,11 @@ CREATE INDEX IF NOT EXISTS "IX_P02_Questions_DiscussionSort"
 CREATE INDEX IF NOT EXISTS "IX_P02_Participants_DiscussionActive"
   ON public."TblP02Participants" (discussion_id, left_at);
 
+
+CREATE UNIQUE INDEX IF NOT EXISTS "UQ_P02_FacilitatorParticipant"
+  ON public."TblP02Participants" (discussion_id)
+  WHERE is_facilitator IS TRUE;
+
 CREATE UNIQUE INDEX IF NOT EXISTS "UQ_P02_ParticipantToken"
   ON public."TblP02Participants" (participant_token);
 
