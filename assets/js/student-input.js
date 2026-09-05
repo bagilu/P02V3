@@ -1,4 +1,4 @@
-import { getStudentState, joinDiscussion, resumeDiscussion, leaveDiscussion, submitAnswer } from './api.js';
+import { getStudentState, joinDiscussion, resumeDiscussion, submitAnswer } from './api.js';
 import { APP_CONFIG } from './config.js';
 import { qs, getQueryParam, readStorage, saveStorage, removeStorage, setMessage, clearMessage, buildUrl, goTo, sanitizeJoinCode } from './utils.js';
 import { renderSharePanel } from './share.js';
@@ -12,7 +12,7 @@ const requestedJoinCode = sanitizeJoinCode(getQueryParam('join') || '');
 const joinPanel = qs('#joinPanel'), studentMain = qs('#studentMain'), directJoinCodeEl = qs('#directJoinCode');
 const nicknameInput = qs('#nickname'), btnJoinDiscussion = qs('#btnJoinDiscussion'), joinMessageEl = qs('#joinMessage');
 const discussionCodeEl = qs('#discussionCode'), participantCountEl = qs('#participantCount'), activeQuestionTextEl = qs('#activeQuestionText');
-const answerContentEl = qs('#answerContent'), btnSubmitAnswer = qs('#btnSubmitAnswer'), submitMessageEl = qs('#submitMessage'), btnLeaveDiscussionTop = qs('#btnLeaveDiscussionTop');
+const answerContentEl = qs('#answerContent'), btnSubmitAnswer = qs('#btnSubmitAnswer'), submitMessageEl = qs('#submitMessage');
 const shareJoinCodeEl = qs('#shareJoinCode'), shareJoinUrlEl = qs('#shareJoinUrl'), joinQrCodeEl = qs('#joinQrCode'), btnCopyJoinUrl = qs('#btnCopyJoinUrl');
 let currentQuestionId = null;
 
@@ -21,11 +21,11 @@ function clearStudentSession() {
 }
 
 function showJoin(code) {
-  studentMain.hidden = true; joinPanel.hidden = false; btnLeaveDiscussionTop.hidden = true;
+  studentMain.hidden = true; joinPanel.hidden = false;
   directJoinCodeEl.textContent = code || '----';
   nicknameInput.value = readStorage(APP_CONFIG.STORAGE_KEYS.nickname) || '';
 }
-function showMain() { joinPanel.hidden = true; studentMain.hidden = false; btnLeaveDiscussionTop.hidden = false; }
+function showMain() { joinPanel.hidden = true; studentMain.hidden = false; }
 
 async function establishSession() {
   if (requestedJoinCode && requestedJoinCode.length !== 4) {
@@ -59,12 +59,6 @@ btnJoinDiscussion?.addEventListener('click', async () => {
   } catch (error) { setMessage(joinMessageEl, error.message || '加入討論失敗。 / Unable to join.', 'danger'); }
   finally { btnJoinDiscussion.disabled = false; }
 });
-
-async function leaveAndGoHome() {
-  try { if (discussionId && participantId && participantToken) await leaveDiscussion(discussionId, participantId, participantToken); } catch (_) {}
-  clearStudentSession(); removeStorage(APP_CONFIG.STORAGE_KEYS.joinCode); goTo('./index.html');
-}
-btnLeaveDiscussionTop?.addEventListener('click', leaveAndGoHome);
 
 async function refreshView() {
   if (!discussionId || !participantId || !participantToken) return;

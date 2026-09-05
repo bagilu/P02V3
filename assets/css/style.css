@@ -261,3 +261,25 @@ body {
 .qr-box img, .qr-box canvas { max-width: 150px !important; height: auto !important; }
 .join-code-display { display: inline-block; font-family: Consolas, Monaco, monospace; font-size: 2rem; font-weight: 800; letter-spacing: .18em; line-height: 1.1; }
 .share-url { display: block; max-width: 100%; overflow-wrap: anywhere; font-size: .9rem; }
+
+
+/* Shared site brand header */
+.site-brand-header {
+  padding-bottom: .75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.site-brand-title {
+  font-size: .92rem;
+  color: #4b5563;
+  line-height: 1.55;
+}
+.site-brand-title a {
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-brand-subtitle {
+  margin-top: .15rem;
+  font-size: .76rem;
+  color: #9ca3af;
+  line-height: 1.45;
+}
