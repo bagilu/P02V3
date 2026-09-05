@@ -1,4 +1,4 @@
-# P02 BrainStormingSystem V5.2 — General Discussion UX
+# P02 BrainStormingSystem V5.2.1 — Facilitator Idea Recall
 
 基準：V5.1.1 Shared Header & Student Flow。
 
@@ -21,3 +21,13 @@ ZIP 僅提供 `assets/js/config-sample.js`。部署時請複製為 `assets/js/co
 
 ## P-SDS
 所有 SQL 僅操作 `TblP02...` 與 `P02_...` 物件；不得使用 schema-wide GRANT/REVOKE、ALL TABLES IN SCHEMA 或 ALTER DEFAULT PRIVILEGES。前端維持 RPC-only。
+
+
+## V5.2.1 修正 / Facilitator Idea Recall
+
+- 切換作用中問題時，引導者的「加入我的想法」欄位會跟著切換。
+- 若該題已有引導者想法，會自動讀回並顯示。
+- 若該題尚未提交想法，欄位會自動清空。
+- 再切回先前問題時，會重新帶回該題已保存的想法。
+- 使用既有 P02_GetQuestionAnswers RPC；本修正版不需要新增 SQL 或資料庫 migration。
+- 輪詢更新不會反覆覆寫引導者正在輸入但尚未送出的文字；只有「作用中問題真的改變」時才重新載入。
