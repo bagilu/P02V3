@@ -34,6 +34,258 @@ BEGIN
 END
 $P02$;
 
+CREATE OR REPLACE FUNCTION public."P02_GetAffinityBoard"(
+  p_discussion_id bigint,
+  p_question_id bigint,
+  p_teacher_token text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $P02$
+DECLARE
+  v_board_id bigint;
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public."TblP02Discussions" AS d
+    JOIN public."TblP02Questions" AS q ON q.discussion_id = d.id
+    WHERE d.id = p_discussion_id
+      AND q.id = p_question_id
+      AND d.teacher_token::text = p_teacher_token
+  ) THEN
+    RAISE EXCEPTION '教師權杖驗證失敗，或指定問題不屬於本討論。';
+  END IF;
+
+  INSERT INTO public."TblP02AffinityBoards" (discussion_id, question_id)
+  VALUES (p_discussion_id, p_question_id)
+  ON CONFLICT (question_id) DO NOTHING;
+
+  SELECT b.id INTO v_board_id
+  FROM public."TblP02AffinityBoards" AS b
+  WHERE b.question_id = p_question_id AND b.discussion_id = p_discussion_id;
+
+  IF v_board_id IS NULL THEN
+    RAISE EXCEPTION '無法建立或讀取本題的分類看板。';
+  END IF;
+
+  RETURN jsonb_build_object(
+    'board_id', v_board_id,
+    'categories', coalesce((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'id', c.id,
+          'name', c.name,
+          'sort_order', c.sort_order,
+          'color_key', c.color_key
+        ) ORDER BY c.sort_order, c.id
+      )
+      FROM public."TblP02AffinityCategories" AS c
+      WHERE c.board_id = v_board_id
+    ), '[]'::jsonb),
+    'notes', coalesce((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'answer_id', a.id,
+          'participant_id', a.participant_id,
+          'nickname', p.nickname,
+          'content', a.content,
+          'submitted_at', a.submitted_at,
+          'category_id', pl.category_id,
+          'sort_order', coalesce(pl.sort_order, 0)
+        ) ORDER BY pl.category_id NULLS FIRST, coalesce(pl.sort_order, 0), a.submitted_at, a.id
+      )
+      FROM public."TblP02Answers" AS a
+      JOIN public."TblP02Participants" AS p ON p.id = a.participant_id
+      LEFT JOIN public."TblP02AffinityPlacements" AS pl
+        ON pl.board_id = v_board_id AND pl.answer_id = a.id
+      WHERE a.discussion_id = p_discussion_id
+        AND a.question_id = p_question_id
+        AND btrim(a.content) <> ''
+    ), '[]'::jsonb)
+  );
+END
+$P02$;
+
+CREATE OR REPLACE FUNCTION public."P02_CreateAffinityCategory"(
+  p_discussion_id bigint,
+  p_question_id bigint,
+  p_teacher_token text,
+  p_name text
+)
+RETURNS TABLE (id bigint, board_id bigint, name text, sort_order integer, color_key smallint)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $P02$
+DECLARE
+  v_board_id bigint;
+  v_name text := btrim(coalesce(p_name, ''));
+  v_sort integer;
+  v_color smallint;
+BEGIN
+  IF char_length(v_name) < 1 OR char_length(v_name) > 100 THEN
+    RAISE EXCEPTION '分類名稱長度必須為 1 到 100 個字元。';
+  END IF;
+
+  SELECT b.id INTO v_board_id
+  FROM public."TblP02AffinityBoards" AS b
+  JOIN public."TblP02Discussions" AS d ON d.id = b.discussion_id
+  WHERE b.discussion_id = p_discussion_id
+    AND b.question_id = p_question_id
+    AND d.teacher_token::text = p_teacher_token
+  FOR UPDATE OF b;
+
+  IF v_board_id IS NULL THEN
+    RAISE EXCEPTION '請先開啟本題的分類看板。';
+  END IF;
+
+  SELECT coalesce(max(c.sort_order), 0) + 1 INTO v_sort
+  FROM public."TblP02AffinityCategories" AS c
+  WHERE c.board_id = v_board_id;
+  v_color := mod(v_sort - 1, 6)::smallint;
+
+  RETURN QUERY
+  INSERT INTO public."TblP02AffinityCategories" AS c
+    (board_id, name, sort_order, color_key)
+  VALUES (v_board_id, v_name, v_sort, v_color)
+  RETURNING c.id::bigint, c.board_id::bigint, c.name::text,
+            c.sort_order::integer, c.color_key::smallint;
+END
+$P02$;
+
+CREATE OR REPLACE FUNCTION public."P02_RenameAffinityCategory"(
+  p_discussion_id bigint,
+  p_question_id bigint,
+  p_teacher_token text,
+  p_category_id bigint,
+  p_name text
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $P02$
+DECLARE
+  v_name text := btrim(coalesce(p_name, ''));
+BEGIN
+  IF char_length(v_name) < 1 OR char_length(v_name) > 100 THEN
+    RAISE EXCEPTION '分類名稱長度必須為 1 到 100 個字元。';
+  END IF;
+
+  UPDATE public."TblP02AffinityCategories" AS c
+  SET name = v_name, updated_at = now()
+  FROM public."TblP02AffinityBoards" AS b,
+       public."TblP02Discussions" AS d
+  WHERE c.id = p_category_id
+    AND c.board_id = b.id
+    AND b.discussion_id = p_discussion_id
+    AND b.question_id = p_question_id
+    AND d.id = b.discussion_id
+    AND d.teacher_token::text = p_teacher_token;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION '分類不存在或教師權杖驗證失敗。';
+  END IF;
+  RETURN true;
+END
+$P02$;
+
+CREATE OR REPLACE FUNCTION public."P02_DeleteAffinityCategory"(
+  p_discussion_id bigint,
+  p_question_id bigint,
+  p_teacher_token text,
+  p_category_id bigint
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $P02$
+BEGIN
+  DELETE FROM public."TblP02AffinityCategories" AS c
+  USING public."TblP02AffinityBoards" AS b,
+        public."TblP02Discussions" AS d
+  WHERE c.id = p_category_id
+    AND c.board_id = b.id
+    AND b.discussion_id = p_discussion_id
+    AND b.question_id = p_question_id
+    AND d.id = b.discussion_id
+    AND d.teacher_token::text = p_teacher_token;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION '分類不存在或教師權杖驗證失敗。';
+  END IF;
+  RETURN true;
+END
+$P02$;
+
+CREATE OR REPLACE FUNCTION public."P02_MoveAffinityAnswer"(
+  p_discussion_id bigint,
+  p_question_id bigint,
+  p_teacher_token text,
+  p_answer_id bigint,
+  p_category_id bigint
+)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $P02$
+DECLARE
+  v_board_id bigint;
+  v_sort integer;
+BEGIN
+  SELECT b.id INTO v_board_id
+  FROM public."TblP02AffinityBoards" AS b
+  JOIN public."TblP02Discussions" AS d ON d.id = b.discussion_id
+  WHERE b.discussion_id = p_discussion_id
+    AND b.question_id = p_question_id
+    AND d.teacher_token::text = p_teacher_token
+  FOR UPDATE OF b;
+
+  IF v_board_id IS NULL THEN
+    RAISE EXCEPTION '分類看板不存在或教師權杖驗證失敗。';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM public."TblP02Answers" AS a
+    WHERE a.id = p_answer_id
+      AND a.discussion_id = p_discussion_id
+      AND a.question_id = p_question_id
+  ) THEN
+    RAISE EXCEPTION '指定回答不屬於本題。';
+  END IF;
+
+  IF p_category_id IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM public."TblP02AffinityCategories" AS c
+    WHERE c.id = p_category_id AND c.board_id = v_board_id
+  ) THEN
+    RAISE EXCEPTION '指定分類不屬於本看板。';
+  END IF;
+
+  SELECT coalesce(max(pl.sort_order), 0) + 1 INTO v_sort
+  FROM public."TblP02AffinityPlacements" AS pl
+  WHERE pl.board_id = v_board_id
+    AND pl.category_id IS NOT DISTINCT FROM p_category_id;
+
+  INSERT INTO public."TblP02AffinityPlacements" AS pl
+    (board_id, answer_id, category_id, sort_order, updated_at)
+  VALUES (v_board_id, p_answer_id, p_category_id, v_sort, now())
+  ON CONFLICT (board_id, answer_id) DO UPDATE
+  SET category_id = EXCLUDED.category_id,
+      sort_order = EXCLUDED.sort_order,
+      updated_at = EXCLUDED.updated_at;
+
+  UPDATE public."TblP02AffinityBoards" AS b
+  SET updated_at = now()
+  WHERE b.id = v_board_id;
+
+  RETURN true;
+END
+$P02$;
+
 CREATE OR REPLACE FUNCTION public."P02_JoinDiscussion"(
   p_join_code text,
   p_nickname text

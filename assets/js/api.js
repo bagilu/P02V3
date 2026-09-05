@@ -134,3 +134,49 @@ export async function getQuestionAnswersView(discussionId, questionId, teacherTo
     rows: rows.filter(row => row.participant_id !== null)
   };
 }
+
+export async function getAffinityBoard(discussionId, questionId, teacherToken) {
+  return await rpc('P02_GetAffinityBoard', {
+    p_discussion_id: discussionId,
+    p_question_id: questionId,
+    p_teacher_token: teacherToken
+  }, '讀取分類看板失敗');
+}
+
+export async function createAffinityCategory(discussionId, questionId, teacherToken, name) {
+  return firstRow(await rpc('P02_CreateAffinityCategory', {
+    p_discussion_id: discussionId,
+    p_question_id: questionId,
+    p_teacher_token: teacherToken,
+    p_name: name
+  }, '新增分類失敗'));
+}
+
+export async function renameAffinityCategory(discussionId, questionId, teacherToken, categoryId, name) {
+  return await rpc('P02_RenameAffinityCategory', {
+    p_discussion_id: discussionId,
+    p_question_id: questionId,
+    p_teacher_token: teacherToken,
+    p_category_id: categoryId,
+    p_name: name
+  }, '修改分類名稱失敗');
+}
+
+export async function deleteAffinityCategory(discussionId, questionId, teacherToken, categoryId) {
+  return await rpc('P02_DeleteAffinityCategory', {
+    p_discussion_id: discussionId,
+    p_question_id: questionId,
+    p_teacher_token: teacherToken,
+    p_category_id: categoryId
+  }, '刪除分類失敗');
+}
+
+export async function moveAffinityAnswer(discussionId, questionId, teacherToken, answerId, categoryId) {
+  return await rpc('P02_MoveAffinityAnswer', {
+    p_discussion_id: discussionId,
+    p_question_id: questionId,
+    p_teacher_token: teacherToken,
+    p_answer_id: answerId,
+    p_category_id: categoryId
+  }, '移動便利貼失敗');
+}

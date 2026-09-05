@@ -3,6 +3,9 @@ REVOKE ALL ON TABLE public."TblP02Discussions" FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON TABLE public."TblP02Questions" FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON TABLE public."TblP02Participants" FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON TABLE public."TblP02Answers" FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public."TblP02AffinityBoards" FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public."TblP02AffinityCategories" FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON TABLE public."TblP02AffinityPlacements" FROM PUBLIC, anon, authenticated;
 
 REVOKE EXECUTE ON FUNCTION public."P02_CreateDiscussion"() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_JoinDiscussion"(text, text) FROM PUBLIC;
@@ -16,6 +19,11 @@ REVOKE EXECUTE ON FUNCTION public."P02_GetStudentState"(bigint, bigint, text) FR
 REVOKE EXECUTE ON FUNCTION public."P02_SubmitAnswer"(bigint, bigint, bigint, text, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_LeaveDiscussion"(bigint, bigint, text) FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public."P02_GetQuestionAnswers"(bigint, bigint, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_GetAffinityBoard"(bigint, bigint, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_CreateAffinityCategory"(bigint, bigint, text, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_RenameAffinityCategory"(bigint, bigint, text, bigint, text) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_DeleteAffinityCategory"(bigint, bigint, text, bigint) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public."P02_MoveAffinityAnswer"(bigint, bigint, text, bigint, bigint) FROM PUBLIC;
 
 GRANT EXECUTE ON FUNCTION public."P02_CreateDiscussion"() TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_JoinDiscussion"(text, text) TO anon, authenticated;
@@ -29,3 +37,8 @@ GRANT EXECUTE ON FUNCTION public."P02_GetStudentState"(bigint, bigint, text) TO 
 GRANT EXECUTE ON FUNCTION public."P02_SubmitAnswer"(bigint, bigint, bigint, text, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_LeaveDiscussion"(bigint, bigint, text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public."P02_GetQuestionAnswers"(bigint, bigint, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_GetAffinityBoard"(bigint, bigint, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_CreateAffinityCategory"(bigint, bigint, text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_RenameAffinityCategory"(bigint, bigint, text, bigint, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_DeleteAffinityCategory"(bigint, bigint, text, bigint) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public."P02_MoveAffinityAnswer"(bigint, bigint, text, bigint, bigint) TO anon, authenticated;

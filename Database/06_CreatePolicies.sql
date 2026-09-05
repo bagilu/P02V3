@@ -14,3 +14,15 @@ CREATE POLICY "P02_DenyDirectClientAccess" ON public."TblP02Participants"
 DROP POLICY IF EXISTS "P02_DenyDirectClientAccess" ON public."TblP02Answers";
 CREATE POLICY "P02_DenyDirectClientAccess" ON public."TblP02Answers"
   AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+DROP POLICY IF EXISTS "P02_DenyDirectClientAccess" ON public."TblP02AffinityBoards";
+CREATE POLICY "P02_DenyDirectClientAccess" ON public."TblP02AffinityBoards"
+  AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+DROP POLICY IF EXISTS "P02_DenyDirectClientAccess" ON public."TblP02AffinityCategories";
+CREATE POLICY "P02_DenyDirectClientAccess" ON public."TblP02AffinityCategories"
+  AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
+
+DROP POLICY IF EXISTS "P02_DenyDirectClientAccess" ON public."TblP02AffinityPlacements";
+CREATE POLICY "P02_DenyDirectClientAccess" ON public."TblP02AffinityPlacements"
+  AS RESTRICTIVE FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);

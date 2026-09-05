@@ -20,3 +20,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS "UQ_P02_AnswerQuestionParticipant"
 
 CREATE INDEX IF NOT EXISTS "IX_P02_Answers_QuestionSubmitted"
   ON public."TblP02Answers" (question_id, submitted_at);
+
+CREATE INDEX IF NOT EXISTS "IX_P02_AffinityBoards_DiscussionQuestion"
+  ON public."TblP02AffinityBoards" (discussion_id, question_id);
+
+CREATE INDEX IF NOT EXISTS "IX_P02_AffinityCategories_BoardSort"
+  ON public."TblP02AffinityCategories" (board_id, sort_order);
+
+CREATE INDEX IF NOT EXISTS "IX_P02_AffinityPlacements_CategorySort"
+  ON public."TblP02AffinityPlacements" (board_id, category_id, sort_order);

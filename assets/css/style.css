@@ -130,6 +130,123 @@ body {
   }
 }
 
+.affinity-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.affinity-column {
+  min-height: 240px;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #dbe3ee;
+  border-radius: 0.9rem;
+}
+
+.affinity-column.is-drag-over {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.affinity-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 3px solid #cbd5e1;
+}
+
+.affinity-column-color-0 .affinity-column-header { border-bottom-color: #eab308; }
+.affinity-column-color-1 .affinity-column-header { border-bottom-color: #3b82f6; }
+.affinity-column-color-2 .affinity-column-header { border-bottom-color: #ec4899; }
+.affinity-column-color-3 .affinity-column-header { border-bottom-color: #22c55e; }
+.affinity-column-color-4 .affinity-column-header { border-bottom-color: #a855f7; }
+.affinity-column-color-5 .affinity-column-header { border-bottom-color: #f97316; }
+
+.affinity-column-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.affinity-column-count {
+  color: #6b7280;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.affinity-column-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.affinity-column-actions .btn {
+  padding: 0.15rem 0.45rem;
+  font-size: 0.75rem;
+}
+
+.affinity-drop-zone {
+  min-height: 165px;
+}
+
+.affinity-note {
+  margin-bottom: 0.75rem;
+  padding: 0.9rem;
+  background: #fff1a8;
+  border-radius: 0.2rem;
+  color: #27303a;
+  box-shadow: 0 4px 10px rgba(31, 41, 55, 0.11);
+  cursor: grab;
+}
+
+.affinity-note:active {
+  cursor: grabbing;
+}
+
+.affinity-note.is-dragging {
+  opacity: 0.5;
+}
+
+.affinity-note-content {
+  margin-bottom: 0.7rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.affinity-note-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  color: #5b6470;
+  font-size: 0.75rem;
+}
+
+.affinity-note .form-select {
+  border-color: rgba(31, 41, 55, 0.2);
+  background-color: rgba(255, 255, 255, 0.65);
+  font-size: 0.8rem;
+}
+
+.affinity-empty {
+  padding: 1.5rem 0.5rem;
+  color: #6b7280;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 575.98px) {
+  .affinity-board {
+    grid-template-columns: 1fr;
+  }
+}
+
 .status-note {
   font-size: 0.9rem;
   color: #6b7280;

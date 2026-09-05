@@ -1,4 +1,4 @@
-# P02 v3 to v4 security audit
+# P02 v3 to V5.0 security audit
 
 ## Findings in v3
 
@@ -9,16 +9,17 @@
 - Teacher and student identifiers were placed in URLs.
 - Supabase Auth session behavior and storage key were not explicitly isolated.
 
-## v4 controls
+## V5.0 controls
 
 - Direct table privileges are revoked from `anon` and `authenticated`.
-- RLS is enabled with restrictive deny-direct policies on only the four P02 tables.
-- Twelve P02-only `SECURITY DEFINER` RPCs validate teacher or participant tokens.
+- RLS is enabled with restrictive deny-direct policies on only the seven P02 tables.
+- Seventeen P02-only `SECURITY DEFINER` RPCs validate teacher or participant tokens.
 - Every function fixes `search_path` and fully qualifies P02 objects.
 - A unique participant token is added without deleting existing rows.
 - Sensitive tokens are kept in tab-scoped `sessionStorage` and omitted from URLs.
 - Supabase Auth persistence is disabled and a P02-specific `storageKey` is configured.
 - Preflight, emergency permission repair, and read-only health-check scripts are included.
+- Affinity boards, categories, and placements are stored in three P02-only tables; their five RPCs require the teacher token.
 
 ## Compatibility note
 
