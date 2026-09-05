@@ -13,16 +13,17 @@ const btnNextAnswer = qs('#btnNextAnswer');
 const btnLeaveDiscussion = qs('#btnLeaveDiscussion');
 
 if (!discussionId || !participantId || !participantToken) {
-  alert('缺少必要參數，將回學生入口。');
-  goTo('./student-entry.html');
+  alert('缺少必要參數。 / Missing session information.');
+  goTo('./index.html');
 }
 
 submittedTimeTextEl.textContent = submittedAt
-  ? `您的回答已於 ${formatTime(submittedAt)} 送出。`
-  : '您的回答已送出。';
+  ? `您的回答已於 ${formatTime(submittedAt)} 送出。 / Submitted at ${formatTime(submittedAt)}.`
+  : '您的回答已送出。 / Your response has been submitted.';
 
 btnNextAnswer?.addEventListener('click', () => {
-  goTo('./student-input.html');
+  const code = readStorage(APP_CONFIG.STORAGE_KEYS.joinCode) || getQueryParam('join');
+  goTo(code ? `./student-input.html?join=${encodeURIComponent(code)}` : './student-input.html');
 });
 
 btnLeaveDiscussion?.addEventListener('click', async () => {
@@ -37,5 +38,6 @@ btnLeaveDiscussion?.addEventListener('click', async () => {
   removeStorage(APP_CONFIG.STORAGE_KEYS.participantId);
   removeStorage(APP_CONFIG.STORAGE_KEYS.participantToken);
   removeStorage(APP_CONFIG.STORAGE_KEYS.nickname);
-  goTo('./student-entry.html');
+  removeStorage(APP_CONFIG.STORAGE_KEYS.joinCode);
+  goTo('./index.html');
 });

@@ -64,7 +64,7 @@ btnAffinityView?.addEventListener('click', () => setAnswerView('affinity'));
 btnRefreshAffinity?.addEventListener('click', () => loadAffinityBoard());
 
 btnAddCategory?.addEventListener('click', async () => {
-  const name = window.prompt('請輸入新的分類名稱：');
+  const name = window.prompt('請輸入新的分類名稱 / New group name:');
   if (name === null || !name.trim()) return;
   try {
     setAffinityStatus('正在新增分類…');
@@ -116,8 +116,8 @@ function setAnswerView(view, persist = true) {
 }
 
 function updateNicknameUi() {
-  btnToggleNickname.textContent = showNickname ? '隱藏暱稱' : '顯示暱稱';
-  nicknameStatusTextEl.textContent = showNickname ? '目前顯示暱稱' : '目前預設隱藏暱稱';
+  btnToggleNickname.textContent = showNickname ? '隱藏暱稱 / Hide Names' : '顯示暱稱 / Show Names';
+  nicknameStatusTextEl.textContent = showNickname ? '目前顯示暱稱 / Names shown' : '目前預設隱藏暱稱 / Names hidden by default';
 }
 
 function escapeHtml(text) {
@@ -249,7 +249,7 @@ function renderAffinityBoard() {
   }
 
   const columns = [
-    { id: null, name: '尚未分類', color_key: 0 },
+    { id: null, name: '尚未分類 / Uncategorized', color_key: 0 },
     ...(affinityState.categories || [])
   ];
   affinityBoardEl.innerHTML = columns.map(renderAffinityColumn).join('');
@@ -329,7 +329,7 @@ async function moveNote(answerId, categoryId) {
 async function renameCategory(categoryId) {
   const category = (affinityState?.categories || []).find(item => Number(item.id) === categoryId);
   if (!category) return;
-  const name = window.prompt('請輸入新的分類名稱：', category.name);
+  const name = window.prompt('請輸入新的分類名稱 / New group name:', category.name);
   if (name === null || !name.trim() || name.trim() === category.name) return;
   try {
     setAffinityStatus('正在修改分類名稱…');

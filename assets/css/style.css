@@ -251,3 +251,13 @@ body {
   font-size: 0.9rem;
   color: #6b7280;
 }
+
+
+/* P02 V5.1 Direct Join & Bilingual UI */
+.brand-line { font-size: .9rem; color: #6b7280; }
+.brand-line a { font-weight: 600; text-decoration: none; }
+.system-description { font-size: .92rem; line-height: 1.75; color: #6b7280; }
+.qr-box { display: inline-flex; align-items: center; justify-content: center; min-width: 166px; min-height: 166px; padding: 8px; background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; }
+.qr-box img, .qr-box canvas { max-width: 150px !important; height: auto !important; }
+.join-code-display { display: inline-block; font-family: Consolas, Monaco, monospace; font-size: 2rem; font-weight: 800; letter-spacing: .18em; line-height: 1.1; }
+.share-url { display: block; max-width: 100%; overflow-wrap: anywhere; font-size: .9rem; }

@@ -21,3 +21,7 @@ Run each file separately in Supabase SQL Editor and wait for success before cont
 All scripts are limited to the seven `TblP02...` tables and seventeen `P02_...` functions. They contain no schema-wide grants, revokes, default privileges, or operations on another P project.
 
 For an existing v3 database, the full deployment preserves rows and adds `participant_token` and `closed_at`. Existing browser sessions do not have the new participant token, so students should rejoin after that upgrade. The V4.2 to V5.0 upgrade only adds affinity-grouping objects and preserves current student sessions. Always deploy the database files before publishing the matching frontend.
+
+
+## V5.1 Direct Join & Bilingual UI
+V5.1 requires no database migration. The existing V5.0 `join_code`, `P02_CreateDiscussion`, `P02_JoinDiscussion`, and `UQ_P02_OpenJoinCode` already provide the required four-digit direct-join mechanism.

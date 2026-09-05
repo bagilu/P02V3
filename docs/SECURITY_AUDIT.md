@@ -1,4 +1,4 @@
-# P02 v3 to V5.0 security audit
+# P02 v3 to V5.1 security audit
 
 ## Findings in v3
 
@@ -24,3 +24,12 @@
 ## Compatibility note
 
 Students who were already inside an open v3 discussion must rejoin after v4 is deployed because their old browser session does not contain `participant_token`. Historical discussions, questions, participants, and answers remain in the database.
+
+
+## V5.1 verification
+
+- V5.1 makes no schema, RPC, RLS, policy, grant, or revoke changes.
+- Direct-join URLs contain only the non-secret four-digit `join_code`; teacher and participant tokens remain in `sessionStorage`.
+- Student direct join continues to call the existing token-issuing `P02_JoinDiscussion` RPC.
+- Frontend scan confirms no `.from()` or direct `TblP02...` access was introduced.
+- SQL scan confirms no schema-wide `ALTER DEFAULT PRIVILEGES`, `ALL TABLES IN SCHEMA`, or schema-wide GRANT/REVOKE command is present.

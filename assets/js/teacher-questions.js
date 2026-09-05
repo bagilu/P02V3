@@ -1,6 +1,7 @@
 import { addQuestion, closeDiscussion, getQuestions, getTeacherState, setActiveQuestion } from './api.js';
 import { APP_CONFIG } from './config.js';
 import { qs, getQueryParam, readStorage, saveStorage, setMessage, clearMessage, buildUrl, goTo } from './utils.js';
+import { renderSharePanel } from './share.js';
 
 const discussionId = Number(getQueryParam('discussion_id') || readStorage(APP_CONFIG.STORAGE_KEYS.teacherDiscussionId));
 const teacherToken = readStorage(APP_CONFIG.STORAGE_KEYS.teacherToken);
@@ -13,6 +14,10 @@ const btnAddQuestion = qs('#btnAddQuestion');
 const questionMessageEl = qs('#questionMessage');
 const questionListEl = qs('#questionList');
 const btnCloseDiscussion = qs('#btnCloseDiscussion');
+const shareJoinCodeEl = qs('#shareJoinCode');
+const shareJoinUrlEl = qs('#shareJoinUrl');
+const joinQrCodeEl = qs('#joinQrCode');
+const btnCopyJoinUrl = qs('#btnCopyJoinUrl');
 
 if (!discussionId || !teacherToken) {
   alert('缺少教師端必要參數，將回教師入口。');
@@ -24,14 +29,16 @@ async function loadHeader() {
 
   discussionCodeEl.textContent = discussion.join_code || '----';
   participantCountEl.textContent = discussion.participant_count || 0;
-  activeQuestionLabelEl.textContent = discussion.active_question_text || '尚未設定';
+  activeQuestionLabelEl.textContent = discussion.active_question_text || '尚未設定 / Not set';
+
+  renderSharePanel({ joinCode: discussion.join_code, codeEl: shareJoinCodeEl, urlEl: shareJoinUrlEl, qrEl: joinQrCodeEl, copyButton: btnCopyJoinUrl });
 
   saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, discussion.join_code || '');
 }
 
 function renderQuestionList(questions, activeQuestionId) {
   if (!questions.length) {
-    questionListEl.innerHTML = '<div class="text-muted">目前尚未建立任何問題。</div>';
+    questionListEl.innerHTML = '<div class="text-muted">目前尚未建立任何問題。 / No questions yet.</div>';
     return;
   }
 
@@ -47,15 +54,15 @@ function renderQuestionList(questions, activeQuestionId) {
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div class="d-flex align-items-start gap-3 flex-grow-1">
             <div class="flex-grow-1">
-              <div class="fw-semibold mb-1">問題 ${q.sort_order} ${isActive ? '<span class="badge text-bg-success ms-2">目前題目</span>' : ''}</div>
+              <div class="fw-semibold mb-1">問題 / Question ${q.sort_order} ${isActive ? '<span class="badge text-bg-success ms-2">目前題目 / Active</span>' : ''}</div>
               <div class="question-main">${escapeHtml(q.question_text)}</div>
             </div>
           </div>
           <div>
             <button type="button" class="btn btn-sm me-2 ${isActive ? 'btn-success' : 'btn-outline-success'} set-active-question-btn" data-question-id="${q.id}" ${isActive ? 'disabled' : ''}>
-              ${isActive ? '目前題目' : '設為目前題目'}
+              ${isActive ? '目前題目 / Active' : '設為目前題目 / Set Active'}
             </button>
-            <a href="${answerUrl}" class="btn btn-outline-primary btn-sm">查看回答</a>
+            <a href="${answerUrl}" class="btn btn-outline-primary btn-sm">查看回答 / Responses</a>
           </div>
         </div>
       </div>
@@ -68,7 +75,7 @@ function renderQuestionList(questions, activeQuestionId) {
         event.currentTarget.disabled = true;
         await setActiveQuestion(discussionId, teacherToken, Number(event.currentTarget.dataset.questionId));
         await refreshAll();
-        setMessage(questionMessageEl, '目前題目已更新，學生端將自動顯示。', 'success');
+        setMessage(questionMessageEl, '目前題目已更新，學生端將自動顯示。 / Active question updated.', 'success');
       } catch (error) {
         setMessage(questionMessageEl, error.message || '設定作用中問題失敗。', 'danger');
         event.currentTarget.disabled = false;
@@ -96,14 +103,14 @@ async function refreshAll() {
 btnCloseDiscussion?.addEventListener('click', async () => {
   clearMessage(questionMessageEl);
 
-  const ok = window.confirm('確定要結束這個討論嗎？結束後學生將無法再加入或送出回答。');
+  const ok = window.confirm('確定要結束這個討論嗎？結束後學生將無法再加入或送出回答。 / End this discussion? Students will no longer be able to join or submit answers.');
   if (!ok) return;
 
   btnCloseDiscussion.disabled = true;
 
   try {
     await closeDiscussion(discussionId, teacherToken);
-    alert('本次討論已結束。');
+    alert('本次討論已結束。 / Discussion ended.');
     goTo('./teacher-entry.html');
   } catch (error) {
     setMessage(questionMessageEl, error.message || '結束討論失敗。', 'danger');
