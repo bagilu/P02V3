@@ -31,3 +31,9 @@ ZIP 僅提供 `assets/js/config-sample.js`。部署時請複製為 `assets/js/co
 - 再切回先前問題時，會重新帶回該題已保存的想法。
 - 使用既有 P02_GetQuestionAnswers RPC；本修正版不需要新增 SQL 或資料庫 migration。
 - 輪詢更新不會反覆覆寫引導者正在輸入但尚未送出的文字；只有「作用中問題真的改變」時才重新載入。
+
+
+## V5.2.2 QR Code Restore
+- Restored QRCode.js loading on the facilitator discussion page.
+- Preserves V5.2.1 Facilitator Idea Recall behavior.
+- Frontend-only fix; no database migration required.
