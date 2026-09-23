@@ -1,4 +1,4 @@
-import { getParticipantState, joinDiscussion, resumeDiscussion, submitAnswer } from './api.js';
+import { getStudentState, joinDiscussion, resumeDiscussion, submitAnswer } from './api.js';
 import { APP_CONFIG } from './config.js';
 import { qs, getQueryParam, readStorage, saveStorage, removeStorage, setMessage, clearMessage, buildUrl, goTo, sanitizeJoinCode } from './utils.js';
 import { renderSharePanel } from './share.js';
@@ -63,7 +63,7 @@ btnJoinDiscussion?.addEventListener('click', async () => {
 async function refreshView() {
   if (!discussionId || !participantId || !participantToken) return;
   clearMessage(submitMessageEl);
-  const discussion = await getParticipantState(discussionId, participantId, participantToken);
+  const discussion = await getStudentState(discussionId, participantId, participantToken);
   discussionCodeEl.textContent = discussion.join_code || '----'; participantCountEl.textContent = discussion.participant_count || 0;
   saveStorage(APP_CONFIG.STORAGE_KEYS.joinCode, discussion.join_code || '');
   renderSharePanel({ joinCode: discussion.join_code, codeEl: shareJoinCodeEl, urlEl: shareJoinUrlEl, qrEl: joinQrCodeEl, copyButton: btnCopyJoinUrl });
@@ -82,4 +82,4 @@ btnSubmitAnswer?.addEventListener('click', async () => {
 });
 
 establishSession().then(ok => { if (ok) refreshView().catch(e => setMessage(submitMessageEl, e.message || '載入資料失敗。 / Load failed.', 'danger')); });
-setInterval(() => { if (!studentMain.hidden) refreshView().catch(() => {}); }, APP_CONFIG.POLLING_MS);
+setInterval(() => { if (!studentMain.hidden) refreshView().catch((e) => setMessage(submitMessageEl, e.message || '同步目前問題失敗。 / Failed to refresh the active question.', 'danger')); }, APP_CONFIG.POLLING_MS);

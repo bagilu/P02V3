@@ -37,3 +37,12 @@ ZIP 僅提供 `assets/js/config-sample.js`。部署時請複製為 `assets/js/co
 - Restored QRCode.js loading on the facilitator discussion page.
 - Preserves V5.2.1 Facilitator Idea Recall behavior.
 - Frontend-only fix; no database migration required.
+
+## V5.2.3 — Participant State & QR Stability Fix
+
+- Fixed participant page module import: `getParticipantState` was incorrectly referenced; the actual API export is `getStudentState`.
+- Participant pages now correctly poll and display the facilitator's active question.
+- Polling errors are surfaced on screen instead of being silently ignored.
+- QR code is enlarged to 256×256 with a larger white quiet zone.
+- QR code is no longer destroyed and recreated every polling cycle; it is re-rendered only when the join URL changes.
+- No database migration is required for V5.2.3.
